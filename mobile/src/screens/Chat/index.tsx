@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native';
-import io, { Socket } from 'socket.io-client';
-import { styles } from './styles';
+import { useEffect, useState } from 'react'
+import { Button, Text, TextInput, View } from 'react-native'
+import io, { Socket } from 'socket.io-client'
+import { styles } from './styles'
 
 interface MessageObject {
   id?: string
@@ -15,7 +15,6 @@ export default function Chat() {
   const [socket, setSocket] = useState<Socket>()
   const [messages, setMessages] = useState<MessageObject[]>([])
 
-
   const sendMessage = (value: MessageObject) => {
     socket?.emit('message', {
       id: socket.id,
@@ -27,8 +26,8 @@ export default function Chat() {
   useEffect(() => {
     const newSocket = io(URL_SOCKET)
     newSocket.on('connect_error', (error) => {
-      console.error('Erro na conexão WebSocket:', error);
-    });
+      console.error('Erro na conexão WebSocket:', error)
+    })
     setSocket(newSocket)
   }, [setSocket])
 
@@ -43,7 +42,6 @@ export default function Chat() {
     }
   }, [messageListener])
 
-
   const [values, setValues] = useState<MessageObject>({
     author: '',
     message: '',
@@ -52,15 +50,22 @@ export default function Chat() {
   return (
     <View style={styles.container}>
       <Text>Mensagens</Text>
-      {messages.map((message, index)=>(
+      {messages.map((message, index) => (
         <Text key={index}>{message.message}</Text>
       ))}
 
-    <TextInput style={styles.input} value={values.message} onChangeText={(e)=>setValues({...values, message: e})} />
-        <Button title='Enviar' onPress={()=>{
-            sendMessage(values)
-            setValues({...values, message: ''})
-        }}/>
+      <TextInput
+        style={styles.input}
+        value={values.message}
+        onChangeText={(e) => setValues({ ...values, message: e })}
+      />
+      <Button
+        title="Enviar"
+        onPress={() => {
+          sendMessage(values)
+          setValues({ ...values, message: '' })
+        }}
+      />
     </View>
-  );
+  )
 }
