@@ -1,13 +1,47 @@
-import { Inter } from 'next/font/google'
+import Messages from '@/components/Messages'
+import MessagesInput from '@/components/MessagesInput'
 
-const inter = Inter({ subsets: ['latin'] })
+import { useEffect, useState } from 'react'
+import io, { Socket } from 'socket.io-client'
+
+interface MessageObject {
+  id?: string
+  author: string
+  message: string
+}
 
 export default function Home() {
+  const [socket, setSocket] = useState<Socket>()
+  const [messages, setMessages] = useState<MessageObject[]>([])
+
+  const sendMessage = (value: MessageObject) => {
+    socket?.emit('message', {
+      id: socket.id,
+      author: value.author,
+      message: value.message,
+    })
+  }
+  useEffect(() => {
+    const newSocket = io('http://localhost:8001')
+    setSocket(newSocket)
+  }, [setSocket])
+
+  const messageListener = (message: MessageObject) => {
+    setMessages([...messages, message])
+  }
+
+  useEffect(() => {
+    socket?.on('message', messageListener)
+    return () => {
+      socket?.off('message', messageListener)
+    }
+  }, [messageListener])
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      Hello World!
-    </main>
+    <>
+      <Messages messages={messages} />
+
+      <MessagesInput send={sendMessage} />
+    </>
   )
 }
