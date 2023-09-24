@@ -1,18 +1,33 @@
+import { Logger } from '@nestjs/common';
 import {
-  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Socket } from 'socket.io';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @WebSocketGateway(8001, { cors: '*' })
-export class ChatGateway {
-  @WebSocketServer()
-  server: Server;
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private logger = new Logger(ChatGateway.name);
+  constructor(private prisma: PrismaService) {}
+
+  async handleConnection(client: Socket) {
+    this.logger.log('Connected', client.id);
+
+    const allMessages = await this.prisma.message.findMany();
+    client.emit('previousMessages', allMessages);
+  }
+
+  handleDisconnect(client: Socket) {
+    this.logger.log('Disconnect', client.id);
+  }
 
   @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: any): void {
-    this.server.emit('message', message);
+  async handleMessage(client: Socket, payload: any) {
+    this.logger.log('Send message');
+    client.broadcast.emit('receivedMessage', payload);
+    await this.prisma.message.create({ data: payload });
   }
 }
