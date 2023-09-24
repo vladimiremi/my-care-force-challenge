@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateMessageDTO } from './dto/createMessage.dto';
 
 @WebSocketGateway(8001, { cors: '*' })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -25,7 +26,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('message')
-  async handleMessage(client: Socket, payload: any) {
+  async handleMessage(client: Socket, payload: CreateMessageDTO) {
     this.logger.log('Send message');
     client.broadcast.emit('receivedMessage', payload);
     await this.prisma.message.create({ data: payload });
