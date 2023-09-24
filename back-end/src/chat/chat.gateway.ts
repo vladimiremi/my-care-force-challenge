@@ -6,18 +6,18 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDTO } from './dto/createMessage.dto';
+import { ChatService } from './chat.service';
 
 @WebSocketGateway(8001, { cors: '*' })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger(ChatGateway.name);
-  constructor(private prisma: PrismaService) {}
+  constructor(private chatService: ChatService) {}
 
   async handleConnection(client: Socket) {
     this.logger.log('Connected', client.id);
 
-    const allMessages = await this.prisma.message.findMany();
+    const allMessages = await this.chatService.listMessage();
     client.emit('previousMessages', allMessages);
   }
 
@@ -29,6 +29,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleMessage(client: Socket, payload: CreateMessageDTO) {
     this.logger.log('Send message');
     client.broadcast.emit('receivedMessage', payload);
-    await this.prisma.message.create({ data: payload });
+    await this.chatService.saveMessage(payload);
   }
 }
