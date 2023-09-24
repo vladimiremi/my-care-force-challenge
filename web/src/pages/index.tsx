@@ -1,7 +1,7 @@
 import Messages from '@/components/Messages'
 import MessagesInput from '@/components/MessagesInput'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import io, { Socket } from 'socket.io-client'
 
 interface MessageObject {
@@ -11,31 +11,58 @@ interface MessageObject {
 }
 
 export default function Home() {
-  const [socket, setSocket] = useState<Socket>()
+  const socketIORef = useRef<Socket>()
   const [messages, setMessages] = useState<MessageObject[]>([])
 
   const sendMessage = (value: MessageObject) => {
-    socket?.emit('message', {
-      id: socket.id,
+    const newMessage = {
+      id: socketIORef.current?.id,
       author: value.author,
       message: value.message,
-    })
+    }
+    socketIORef.current?.emit('message', newMessage)
+
+    setMessages([...messages, newMessage])
   }
   useEffect(() => {
-    const newSocket = io('http://localhost:8001')
-    setSocket(newSocket)
-  }, [setSocket])
+    socketIORef.current = io('http://localhost:8001')
+    socketIORef.current.on('connect', () => {
+      console.log('Connected')
+    })
+    socketIORef.current.on('connect_error', (error) => {
+      console.log('Erro na conexão WebSocket:', error)
+    })
+
+    return () => {
+      socketIORef.current?.disconnect()
+    }
+  }, [])
 
   const messageListener = (message: MessageObject) => {
-    setMessages([...messages, message])
+    setMessages((prev) => {
+      return [...prev, message]
+    })
   }
 
   useEffect(() => {
-    socket?.on('message', messageListener)
+    socketIORef.current?.on('receivedMessage', messageListener)
+
     return () => {
-      socket?.off('message', messageListener)
+      socketIORef.current?.off('receivedMessage', messageListener)
     }
-  }, [messageListener])
+  }, [])
+
+  useEffect(() => {
+    socketIORef.current?.on('previousMessages', (message) => {
+      setMessages(message)
+    })
+
+    return () => {
+      socketIORef.current?.off('previousMessages', (message) => {
+        setMessages(message)
+      })
+    }
+  }, [])
 
   return (
     <>
