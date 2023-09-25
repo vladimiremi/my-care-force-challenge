@@ -5,6 +5,9 @@ Esse desafio foi proposto pela [MyCareForce](https://www.mycareforce.com.br/) co
 ## Diagrama de como as aplicações interagem
 ![image](https://github.com/vladimiremi/my-care-force-challenge/assets/41305527/6032bf3d-0f9f-49b8-a25a-2b7424602565)
 
+## Preview
+https://github.com/vladimiremi/my-care-force-challenge/assets/41305527/4fa72299-fe6d-4a26-9aaa-25c570be773c
+
 ## Setup local
 
 1. Clone este repositório `git clone https://github.com/vladimiremi/my-care-force-challenge.git`
