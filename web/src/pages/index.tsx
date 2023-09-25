@@ -1,5 +1,4 @@
 import Messages from '@/components/Messages'
-import MessagesInput from '@/components/MessagesInput'
 
 import { useEffect, useRef, useState } from 'react'
 import io, { Socket } from 'socket.io-client'
@@ -65,11 +64,52 @@ export default function Home() {
     }
   }, [])
 
+  const [value, setValue] = useState({
+    message: '',
+    author: '',
+  })
+
   return (
-    <>
+    <div className="flex flex-col justify-center align-middle bg">
+      <div>
+        <input
+          className="bg-secondary"
+          placeholder="Digite seu nome"
+          value={value.author}
+          onChange={(e) => {
+            setValue((prev) => {
+              return { ...prev, author: e.target.value }
+            })
+          }}
+        />
+      </div>
+
+      <h3>Mensagens:</h3>
       <Messages messages={messages} />
 
-      <MessagesInput send={sendMessage} />
-    </>
+      <div>
+        <input
+          className="bg-secondary"
+          placeholder="Digite sua mensagem"
+          value={value.message}
+          onChange={(e) => {
+            setValue((prev) => {
+              return { ...prev, message: e.target.value }
+            })
+          }}
+        />
+        <button
+          className="bg-primary text-white w-16 rounded-sm"
+          onClick={() => {
+            sendMessage(value)
+            setValue((prev) => {
+              return { ...prev, message: '' }
+            })
+          }}
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
   )
 }
