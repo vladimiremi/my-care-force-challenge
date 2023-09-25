@@ -9,7 +9,11 @@
 2. execute o docker `docker-compose up -d`
 3. copie as keys do arquivo `.env.example` para `.env`
 4. rode as migrations `npx prisma migrate dev`
-5. execute o projeto
+5. execute o projeto `npm run start:dev`
+
+
+## Diagrama de como as aplicações interagem
+![image](https://github.com/vladimiremi/my-care-force-challenge/assets/41305527/6032bf3d-0f9f-49b8-a25a-2b7424602565)
 
 
 ## Running the app
