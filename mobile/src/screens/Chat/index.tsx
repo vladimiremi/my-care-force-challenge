@@ -15,11 +15,15 @@ interface MessageObject {
   message: string
 }
 
-const URL_SOCKET = 'https://599e-170-84-93-214.ngrok.io'
+const URL_SOCKET = 'https://df7f-170-84-93-214.ngrok.io'
 
 export default function Chat() {
   const socketIORef = useRef<Socket>()
   const [messages, setMessages] = useState<MessageObject[]>([])
+  const [values, setValues] = useState<MessageObject>({
+    author: '',
+    message: '',
+  })
 
   const validMessage = (message: string) => {
     if (message.length > 0) {
@@ -43,6 +47,12 @@ export default function Chat() {
     setMessages([...messages, newMessage])
   }
 
+  const messageListener = (message: MessageObject) => {
+    setMessages((prev) => {
+      return [...prev, message]
+    })
+  }
+
   useEffect(() => {
     socketIORef.current = io(URL_SOCKET)
     socketIORef.current.on('connect', () => {
@@ -56,12 +66,6 @@ export default function Chat() {
       socketIORef.current?.disconnect()
     }
   }, [])
-
-  const messageListener = (message: MessageObject) => {
-    setMessages((prev) => {
-      return [...prev, message]
-    })
-  }
 
   useEffect(() => {
     socketIORef.current?.on('receivedMessage', messageListener)
@@ -82,10 +86,6 @@ export default function Chat() {
       })
     }
   }, [])
-  const [values, setValues] = useState<MessageObject>({
-    author: '',
-    message: '',
-  })
 
   return (
     <View style={styles.container}>
