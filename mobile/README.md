@@ -9,5 +9,5 @@
 4. Escaneie o QR code com o app Expo Go
 
 
-**Dica**
-| Você pode sentir dificuldade ao conseguir fazer com que o app se conecte com o servidor local. A solução que encontrei para resolver esse problema por hora, foi mapeando minha conexão local usando [ngrok](https://ngrok.com/). Depois é só ir no arquivo `./src/screens/Chat/index.tsx`, na const `URL_SOCKET` e colocar a URL gerada pelo ngrok. Vou atualizando aqui caso eu encontre outra solução.
+**Dica:**
+Você pode sentir dificuldade ao tentar fazer com que o app se conecte com o servidor local. A solução que encontrei para resolver esse problema por hora, foi mapeando minha conexão local usando [ngrok](https://ngrok.com/). Depois é só ir no arquivo `./src/screens/Chat/index.tsx`, na const `URL_SOCKET` e colocar a URL gerada pelo ngrok. Vou atualizando aqui caso eu encontre outra solução.
