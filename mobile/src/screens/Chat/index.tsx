@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ScrollView,
   Text,
@@ -15,10 +15,10 @@ interface MessageObject {
   message: string
 }
 
-const URL_SOCKET = 'https://f547-170-84-93-214.ngrok.io'
+const URL_SOCKET = 'https://599e-170-84-93-214.ngrok.io'
 
 export default function Chat() {
-  const [socket, setSocket] = useState<Socket>()
+  const socketIORef = useRef<Socket>()
   const [messages, setMessages] = useState<MessageObject[]>([])
 
   const validMessage = (message: string) => {
@@ -33,32 +33,55 @@ export default function Chat() {
     if (validMessage(value.message)) {
       return console.warn('Digite uma mensagem válida')
     }
-    socket?.emit('message', {
-      id: socket.id,
+    const newMessage = {
+      id: socketIORef.current?.id,
       author: value.author || 'Anônimo',
       message: value.message,
-    })
+    }
+    socketIORef.current?.emit('message', newMessage)
+
+    setMessages([...messages, newMessage])
   }
 
   useEffect(() => {
-    const newSocket = io(URL_SOCKET)
-    newSocket.on('connect_error', (error) => {
-      console.error('Erro na conexão WebSocket:', error)
+    socketIORef.current = io(URL_SOCKET)
+    socketIORef.current.on('connect', () => {
+      console.log('Connected')
     })
-    setSocket(newSocket)
-  }, [setSocket])
+    socketIORef.current.on('connect_error', (error) => {
+      console.log('Erro na conexão WebSocket:', error)
+    })
+
+    return () => {
+      socketIORef.current?.disconnect()
+    }
+  }, [])
 
   const messageListener = (message: MessageObject) => {
-    setMessages([...messages, message])
+    setMessages((prev) => {
+      return [...prev, message]
+    })
   }
 
   useEffect(() => {
-    socket?.on('message', messageListener)
-    return () => {
-      socket?.off('message', messageListener)
-    }
-  }, [messageListener, socket])
+    socketIORef.current?.on('receivedMessage', messageListener)
 
+    return () => {
+      socketIORef.current?.off('receivedMessage', messageListener)
+    }
+  }, [])
+
+  useEffect(() => {
+    socketIORef.current?.on('previousMessages', (message) => {
+      setMessages(message)
+    })
+
+    return () => {
+      socketIORef.current?.off('previousMessages', (message) => {
+        setMessages(message)
+      })
+    }
+  }, [])
   const [values, setValues] = useState<MessageObject>({
     author: '',
     message: '',
@@ -74,20 +97,12 @@ export default function Chat() {
       />
 
       <ScrollView
+        scrollsToTop
         style={{
           flex: 1,
-          backgroundColor: 'red',
         }}
       >
-        <View
-          style={{
-            backgroundColor: 'blue',
-            alignItems: 'flex-end',
-            justifyContent: 'flex-end',
-            height: '100%',
-            alignSelf: 'flex-end',
-          }}
-        >
+        <View style={{ bottom: 0 }}>
           {messages.map((message, index) => (
             <Text key={index}>
               {message.author}: {message.message}
