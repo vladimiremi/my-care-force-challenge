@@ -3,7 +3,7 @@
 [Expo](https://docs.expo.dev/) Mobile do chat. Tem como objetivo mandar e receber mensagem interagindo com o Backend da aplicação
 
 ## Setup
-1. Execute o servidor da aplicação antes
+1. Execute o [servidor](https://github.com/vladimiremi/my-care-force-challenge/tree/main/back-end) da aplicação antes
 2. instale as dependências `npm install`
 3. execute o projeto mobile `expo start`
 4. Escaneie o QR code com o app Expo Go
