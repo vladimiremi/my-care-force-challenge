@@ -11,9 +11,10 @@ datasource db {
 }
 
 model Message {
-  id      String @id @default(uuid())
-  author  String
-  message String
+  id           String @id @default(uuid())
+  connectionId String @default("")
+  author       String
+  message      String
 
   @@map("messages")
 }

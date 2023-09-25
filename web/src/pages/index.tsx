@@ -24,6 +24,7 @@ export default function Home() {
 
     setMessages([...messages, newMessage])
   }
+
   useEffect(() => {
     socketIORef.current = io('http://localhost:8001')
     socketIORef.current.on('connect', () => {

@@ -8,7 +8,13 @@ import { Injectable } from '@nestjs/common';
 export class PrismaMessageRepository implements MessageRepository {
   constructor(private prisma: PrismaService) {}
   async saveMessage(data: CreateMessageDTO): Promise<Message> {
-    return await this.prisma.message.create({ data: data });
+    return await this.prisma.message.create({
+      data: {
+        author: data.author,
+        message: data.message,
+        connectionId: data.id,
+      },
+    });
   }
   async listMessages(): Promise<Message[]> {
     return await this.prisma.message.findMany();
