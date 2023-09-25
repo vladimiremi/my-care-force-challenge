@@ -12,6 +12,10 @@ interface MessageObject {
 export default function Home() {
   const socketIORef = useRef<Socket>()
   const [messages, setMessages] = useState<MessageObject[]>([])
+  const [value, setValue] = useState({
+    message: '',
+    author: '',
+  })
 
   const sendMessage = (value: MessageObject) => {
     const newMessage = {
@@ -22,6 +26,16 @@ export default function Home() {
     socketIORef.current?.emit('message', newMessage)
 
     setMessages([...messages, newMessage])
+
+    setValue((prev) => {
+      return { ...prev, message: '' }
+    })
+  }
+
+  const messageListener = (message: MessageObject) => {
+    setMessages((prev) => {
+      return [...prev, message]
+    })
   }
 
   useEffect(() => {
@@ -38,20 +52,6 @@ export default function Home() {
     }
   }, [])
 
-  const messageListener = (message: MessageObject) => {
-    setMessages((prev) => {
-      return [...prev, message]
-    })
-  }
-
-  useEffect(() => {
-    socketIORef.current?.on('receivedMessage', messageListener)
-
-    return () => {
-      socketIORef.current?.off('receivedMessage', messageListener)
-    }
-  }, [])
-
   useEffect(() => {
     socketIORef.current?.on('previousMessages', (message) => {
       setMessages(message)
@@ -64,10 +64,13 @@ export default function Home() {
     }
   }, [])
 
-  const [value, setValue] = useState({
-    message: '',
-    author: '',
-  })
+  useEffect(() => {
+    socketIORef.current?.on('receivedMessage', messageListener)
+
+    return () => {
+      socketIORef.current?.off('receivedMessage', messageListener)
+    }
+  }, [])
 
   return (
     <div className="flex flex-col justify-center align-middle bg">
@@ -100,12 +103,7 @@ export default function Home() {
         />
         <button
           className="bg-primary text-white w-16 rounded-sm"
-          onClick={() => {
-            sendMessage(value)
-            setValue((prev) => {
-              return { ...prev, message: '' }
-            })
-          }}
+          onClick={() => sendMessage(value)}
         >
           Enviar
         </button>
